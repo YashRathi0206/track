@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InternTrack — Yash Rathi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #09090f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --surface3: #1e1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --text2: #8888a0;
+    --text3: #55556a;
+    --accent: #7c6fff;
+    --accent2: #5b4eff;
+    --accent-glow: rgba(124,111,255,0.18);
+    --teal: #00d4b4;
+    --teal-dim: rgba(0,212,180,0.12);
+    --amber: #f0a040;
+    --amber-dim: rgba(240,160,64,0.12);
+    --rose: #f06080;
+    --rose-dim: rgba(240,96,128,0.12);
+    --green: #40d080;
+    --green-dim: rgba(64,208,128,0.12);
+    --blue: #40a0ff;
+    --blue-dim: rgba(64,160,255,0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-pill: 999px;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-accent: 0 0 32px rgba(124,111,255,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Layout ── */
+  .app-shell { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+  }
+  .sidebar-logo {
+    padding: 0 20px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .logo-mark {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .logo-mark span { color: var(--accent); }
+  .logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; letter-spacing: 0.04em; }
+
+  .nav-section { padding: 0 12px; margin-bottom: 24px; }
+  .nav-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: var(--radius-sm);
+    cursor: pointer; color: var(--text2); font-size: 13px;
+    transition: all 0.15s; border: none; background: none;
+    width: 100%; text-align: left;
+  }
+  .nav-item i { width: 16px; text-align: center; font-size: 14px; }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); background: var(--accent-glow); font-weight: 500; }
+  .nav-item .badge-count {
+    margin-left: auto; font-size: 10px; background: var(--accent);
+    color: white; padding: 1px 6px; border-radius: var(--radius-pill);
+    font-weight: 600;
+  }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 16px 20px 0;
+    border-top: 1px solid var(--border);
+  }
+  .avatar-row { display: flex; align-items: center; gap: 10px; }
+  .av-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .av-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .av-sub { font-size: 10px; color: var(--text3); }
+
+  /* ── Main ── */
+  .main { margin-left: 220px; flex: 1; padding: 28px 32px; min-height: 100vh; }
+
+  /* ── Page header ── */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+  .page-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 16px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; transition: all 0.15s; font-family: var(--font-body);
+  }
+  .btn-primary {
+    background: var(--accent); color: white;
+    box-shadow: 0 0 20px rgba(124,111,255,0.3);
+  }
+  .btn-primary:hover { background: var(--accent2); box-shadow: 0 0 28px rgba(124,111,255,0.45); transform: translateY(-1px); }
+  .btn-ghost {
+    background: var(--surface2); color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+  .btn-icon { padding: 8px; border-radius: var(--radius-sm); }
+
+  /* ── Tabs (hidden pages) ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Metric cards ── */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .metric-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .metric-card:hover { border-color: var(--border2); }
+  .metric-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--card-accent, var(--accent));
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .metric-icon {
+    width: 34px; height: 34px; border-radius: var(--radius-sm);
+    background: var(--card-accent-dim, var(--accent-glow));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: var(--card-accent, var(--accent));
+    margin-bottom: 12px;
+  }
+  .metric-val { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+  .metric-label { font-size: 11px; color: var(--text2); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric-delta { font-size: 11px; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+  .delta-up { color: var(--green); }
+  .delta-neutral { color: var(--text3); }
+
+  /* ── Charts row ── */
+  .charts-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .chart-card-title { font-size: 12px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  .chart-wrap { position: relative; }
+
+  /* ── App cards ── */
+  .app-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 16px;
+    transition: all 0.15s; cursor: default;
+  }
+  .app-card:hover { border-color: var(--border2); background: var(--surface2); transform: translateX(2px); }
+  .company-logo {
+    width: 42px; height: 42px; border-radius: var(--radius-sm);
+    background: var(--surface3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 14px; font-weight: 800;
+    color: var(--text); flex-shrink: 0;
+  }
+  .app-info { flex: 1; min-width: 0; }
+  .app-company { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-role { font-size: 12px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-meta { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+  .app-meta-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text3); }
+  .app-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .status-select {
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: var(--radius-pill); border: none; cursor: pointer;
+    font-family: var(--font-body);
+  }
+
+  /* Status pill colors */
+  .s-applied { background: var(--blue-dim); color: var(--blue); }
+  .s-oa { background: var(--amber-dim); color: var(--amber); }
+  .s-interview { background: var(--teal-dim); color: var(--teal); }
+  .s-offer { background: var(--green-dim); color: var(--green); }
+  .s-rejected { background: var(--rose-dim); color: var(--rose); }
+  .s-ghosted { background: rgba(136,136,160,0.12); color: var(--text3); }
+
+  /* ── Filters ── */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filter-chip {
+    padding: 6px 14px; border-radius: var(--radius-pill);
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text2); transition: all 0.15s; font-family: var(--font-body);
+  }
+  .filter-chip:hover { border-color: var(--border2); color: var(--text); }
+  .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .search-box {
+    margin-left: auto; position: relative;
+  }
+  .search-box input {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 12px 7px 34px; border-radius: var(--radius-sm);
+    font-size: 13px; font-family: var(--font-body); width: 200px;
+    transition: border-color 0.15s;
+  }
+  .search-box input:focus { outline: none; border-color: var(--accent); }
+  .search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 13px; }
+  .search-box input::placeholder { color: var(--text3); }
+
+  /* ── Sort bar ── */
+  .sort-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .sort-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .sort-select {
+    font-size: 12px; padding: 4px 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text2); font-family: var(--font-body); cursor: pointer;
+  }
+
+  /* ── Kanban ── */
+  .kanban-wrap { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+  .kanban-col {
+    flex: 0 0 220px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px;
+  }
+  .kanban-col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .kanban-col-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+  .kanban-count { font-size: 11px; color: var(--text3); background: var(--surface3); padding: 2px 7px; border-radius: var(--radius-pill); }
+  .kanban-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px;
+    transition: transform 0.15s;
+  }
+  .kanban-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+  .kanban-company { font-size: 12px; font-weight: 600; color: var(--text); }
+  .kanban-role { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .kanban-date { font-size: 10px; color: var(--text3); margin-top: 6px; }
+
+  /* ── Follow-ups ── */
+  .fu-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 8px; transition: all 0.15s;
+  }
+  .fu-row:hover { border-color: var(--border2); }
+  .fu-urgency-bar { width: 3px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+  .fu-info { flex: 1; }
+  .fu-company { font-size: 13px; font-weight: 600; color: var(--text); }
+  .fu-detail { font-size: 11px; color: var(--text2); margin-top: 3px; }
+  .fu-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: var(--radius-pill); flex-shrink: 0;
+  }
+  .fu-overdue { background: var(--rose-dim); color: var(--rose); }
+  .fu-today { background: var(--amber-dim); color: var(--amber); }
+  .fu-soon { background: var(--blue-dim); color: var(--blue); }
+  .fu-later { background: var(--green-dim); color: var(--green); }
+  .fu-done-row { opacity: 0.45; }
+
+  /* ── Network ── */
+  .network-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .net-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+    transition: all 0.15s;
+  }
+  .net-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .net-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .net-av {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white;
+  }
+  .net-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .net-role { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .net-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .net-tag { font-size: 10px; padding: 3px 8px; border-radius: var(--radius-pill); background: var(--surface3); color: var(--text2); border: 1px solid var(--border); }
+  .net-note { font-size: 12px; color: var(--text2); margin-top: 10px; line-height: 1.5; border-top: 1px solid var(--border); padding-top: 10px; }
+  .net-actions { display: flex; gap: 6px; margin-top: 12px; }
+
+  /* ── Checklist ── */
+  .prep-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 12px; }
+  .prep-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .prep-section-title { font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .prep-section-title i { color: var(--accent); }
+  .prep-progress-mini { display: flex; align-items: center; gap: 8px; }
+  .prep-bar-wrap { width: 80px; height: 4px; background: var(--surface3); border-radius: 2px; }
+  .prep-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.3s; }
+  .prep-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .prep-item:last-child { border-bottom: none; }
+  .prep-cb { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+  .prep-text { font-size: 13px; color: var(--text); line-height: 1.4; cursor: pointer; }
+  .prep-text.done { text-decoration: line-through; color: var(--text3); }
+  .prep-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px); z-index: 200;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 28px;
+    width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+    box-shadow: var(--shadow), var(--shadow-accent);
+  }
+  .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+  .form-input, .form-select, .form-textarea {
+    background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text); padding: 9px 12px; border-radius: var(--radius-sm);
+    font-size: 13px; font-family: var(--font-body);
+    transition: border-color 0.15s; width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+  .form-textarea { resize: vertical; min-height: 72px; }
+  .form-select option { background: var(--surface2); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ── Toast ── */
+  .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); padding: 12px 16px;
+    font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px;
+    box-shadow: var(--shadow); animation: slideUp 0.25s ease;
+    max-width: 280px;
+  }
+  .toast i { color: var(--green); }
+  @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+  /* ── Progress ring ── */
+  .progress-ring { display: flex; flex-direction: column; align-items: center; }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--surface3); }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+  .ring-text { text-anchor: middle; dominant-baseline: middle; fill: var(--text); font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+  .ring-label { font-size: 11px; color: var(--text2); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before { content:''; position:absolute; left:6px; top:4px; bottom:4px; width:1px; background: var(--border2); }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-dot {
+    position: absolute; left: -20px; top: 3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--surface); background: var(--accent);
+  }
+  .tl-company { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tl-event { font-size: 12px; color: var(--text2); }
+  .tl-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── Quick actions ── */
+  .quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 24px; }
+  .quick-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    cursor: pointer; transition: all 0.15s; text-align: center;
+    font-family: var(--font-body);
+  }
+  .quick-btn:hover { border-color: var(--border2); background: var(--surface2); transform: translateY(-2px); }
+  .quick-btn i { font-size: 18px; color: var(--accent); margin-bottom: 8px; display: block; }
+  .quick-btn-label { font-size: 12px; font-weight: 500; color: var(--text); }
+  .quick-btn-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+  /* ── JD Analyzer ── */
+  .jd-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .jd-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .jd-panel-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 12px; }
+  .keyword-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: var(--radius-pill); font-size: 12px;
+    margin: 3px; border: 1px solid;
+  }
+  .kw-match { background: var(--teal-dim); color: var(--teal); border-color: rgba(0,212,180,0.2); }
+  .kw-gap { background: var(--rose-dim); color: var(--rose); border-color: rgba(240,96,128,0.2); }
+  .kw-neutral { background: var(--surface3); color: var(--text2); border-color: var(--border); }
+  .match-score { font-family: var(--font-display); font-size: 42px; font-weight: 800; text-align: center; padding: 12px 0; }
+  .score-high { color: var(--green); }
+  .score-mid { color: var(--amber); }
+  .score-low { color: var(--rose); }
+
+  /* ── Email template ── */
+  .template-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .template-card:hover { border-color: var(--accent); }
+  .template-type { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 6px; }
+  .template-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .template-preview { font-size: 12px; color: var(--text2); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Empty state ── */
+  .empty-state { text-align: center; padding: 48px 20px; }
+  .empty-state i { font-size: 36px; color: var(--text3); margin-bottom: 12px; display: block; }
+  .empty-state-title { font-size: 15px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+  .empty-state-sub { font-size: 13px; color: var(--text3); }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+
+  /* ── Misc ── */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+  .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .delete-icon-btn {
+    padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid transparent;
+    background: transparent; color: var(--text3); cursor: pointer; font-size: 13px;
+    transition: all 0.15s;
+  }
+  .delete-icon-btn:hover { border-color: var(--rose-dim); background: var(--rose-dim); color: var(--rose); }
+  .view-toggle { display: flex; gap: 2px; }
+  .view-btn {
+    padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: transparent; color: var(--text3); cursor: pointer; font-size: 13px; transition: all 0.15s;
+  }
+  .view-btn.active { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+  .copy-btn {
+    padding: 5px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: transparent; color: var(--text2); cursor: pointer; font-size: 12px;
+    transition: all 0.15s; font-family: var(--font-body);
+  }
+  .copy-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 60px; }
+    .sidebar .logo-mark, .sidebar .logo-sub, .sidebar .av-name, .sidebar .av-sub, .nav-item span, .nav-item .badge-count, .nav-label { display: none; }
+    .nav-item { justify-content: center; }
+    .main { margin-left: 60px; padding: 16px; }
+    .charts-row, .two-col, .jd-wrap { grid-template-columns: 1fr; }
+    .quick-actions { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Intern<span>Track</span></div>
+      <div class="logo-sub">Job hunt command center</div>
+    </div>
+    <nav class="nav-section">
+      <div class="nav-label">Overview</div>
+      <button class="nav-item active" onclick="goPage('dashboard',this)"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></button>
+      <button class="nav-item" onclick="goPage('applications',this)"><i class="fa-solid fa-briefcase"></i><span>Applications</span><span class="badge-count" id="nav-app-count">0</span></button>
+    </nav>
+    <nav class="nav-section">
+      <div class="nav-label">Workflow</div>
+      <button class="nav-item" onclick="goPage('pipeline',this)"><i class="fa-solid fa-columns"></i><span>Pipeline</span></button>
+      <button class="nav-item" onclick="goPage('followups',this)"><i class="fa-solid fa-bell"></i><span>Follow-ups</span><span class="badge-count" id="nav-fu-count" style="background:var(--rose)">0</span></button>
+      <button class="nav-item" onclick="goPage('networking',this)"><i class="fa-solid fa-users"></i><span>Networking</span></button>
+    </nav>
+    <nav class="nav-section">
+      <div class="nav-label">Prep</div>
+      <button class="nav-item" onclick="goPage('prep',this)"><i class="fa-solid fa-list-check"></i><span>Interview prep</span></button>
+      <button class="nav-item" onclick="goPage('tools',this)"><i class="fa-solid fa-wand-magic-sparkles"></i><span>Job tools</span></button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar-row">
+        <div class="av-circle">YR</div>
+        <div><div class="av-name">Yash Rathi</div><div class="av-sub">DTU · 2027</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Good morning, Yash 👋</div>
+          <div class="page-sub" id="dash-date">Loading date...</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal('app')"><i class="fa-solid fa-plus"></i> New application</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid" id="dash-metrics"></div>
+
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="openModal('app')">
+          <i class="fa-solid fa-plus"></i>
+          <div class="quick-btn-label">Log application</div>
+          <div class="quick-btn-sub">Track a new role</div>
+        </button>
+        <button class="quick-btn" onclick="openModal('followup')">
+          <i class="fa-solid fa-bell"></i>
+          <div class="quick-btn-label">Schedule follow-up</div>
+          <div class="quick-btn-sub">Stay top of mind</div>
+        </button>
+        <button class="quick-btn" onclick="openModal('network')">
+          <i class="fa-solid fa-user-plus"></i>
+          <div class="quick-btn-label">Add contact</div>
+          <div class="quick-btn-sub">Build your network</div>
+        </button>
+        <button class="quick-btn" onclick="goPage('tools',document.querySelector('.nav-item:nth-child(1)'))">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <div class="quick-btn-label">Job tools</div>
+          <div class="quick-btn-sub">JD analyzer & emails</div>
+        </button>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-card-title">Applications over time</div>
+          <div class="chart-wrap" style="height:200px"><canvas id="chart-timeline" role="img" aria-label="Applications over time bar chart"></canvas></div>
+        </div>
+        <div class="chart-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="chart-card-title" style="align-self:flex-start">Status breakdown</div>
+          <div style="display:flex;align-items:center;gap:24px">
+            <div class="chart-wrap" style="height:160px;width:160px"><canvas id="chart-donut" role="img" aria-label="Application status donut chart"></canvas></div>
+            <div id="donut-legend" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="section-header"><div class="section-title">Recent applications</div><button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="goPage('applications',null)">View all</button></div>
+          <div id="dash-recent"></div>
+        </div>
+        <div>
+          <div class="section-header"><div class="section-title">Upcoming follow-ups</div></div>
+          <div id="dash-fu"></div>
+          <div class="divider"></div>
+          <div class="section-header"><div class="section-title">Activity timeline</div></div>
+          <div class="timeline" id="dash-timeline"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── APPLICATIONS ── -->
+    <div id="page-applications" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Applications</div><div class="page-sub" id="app-count-sub"></div></div>
+        <div class="header-actions">
+          <div class="view-toggle">
+            <button class="view-btn active" id="vlist" onclick="setView('list')"><i class="fa-solid fa-list"></i></button>
+            <button class="view-btn" id="vkanban" onclick="setView('kanban')"><i class="fa-solid fa-columns"></i></button>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('app')"><i class="fa-solid fa-plus"></i> Add</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-chip active" onclick="filterApps('all',this)">All</button>
+        <button class="filter-chip" onclick="filterApps('Applied',this)">Applied</button>
+        <button class="filter-chip" onclick="filterApps('OA',this)">OA</button>
+        <button class="filter-chip" onclick="filterApps('Interview',this)">Interview</button>
+        <button class="filter-chip" onclick="filterApps('Offer',this)">Offer</button>
+        <button class="filter-chip" onclick="filterApps('Rejected',this)">Rejected</button>
+        <button class="filter-chip" onclick="filterApps('Ghosted',this)">Ghosted</button>
+        <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="app-search" placeholder="Search..." oninput="renderApps()"></div>
+      </div>
+      <div class="sort-bar">
+        <span class="sort-label">Sort:</span>
+        <select class="sort-select" id="app-sort" onchange="renderApps()">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="company">Company A–Z</option>
+          <option value="deadline">Deadline soon</option>
+        </select>
+      </div>
+      <div id="app-list"></div>
+    </div>
+
+    <!-- ── PIPELINE ── -->
+    <div id="page-pipeline" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Pipeline</div><div class="page-sub">Your funnel at a glance</div></div>
+      </div>
+      <div class="kanban-wrap" id="kanban-board"></div>
+    </div>
+
+    <!-- ── FOLLOW-UPS ── -->
+    <div id="page-followups" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Follow-ups</div><div class="page-sub">Stay top of mind — the squeaky wheel gets the offer</div></div>
+        <button class="btn btn-primary" onclick="openModal('followup')"><i class="fa-solid fa-plus"></i> Schedule</button>
+      </div>
+      <div id="fu-list"></div>
+    </div>
+
+    <!-- ── NETWORKING ── -->
+    <div id="page-networking" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Networking</div><div class="page-sub">Referrals close 4× more internships than cold apps</div></div>
+        <button class="btn btn-primary" onclick="openModal('network')"><i class="fa-solid fa-plus"></i> Add contact</button>
+      </div>
+      <div class="network-grid" id="net-list"></div>
+    </div>
+
+    <!-- ── PREP ── -->
+    <div id="page-prep" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Interview prep</div><div class="page-sub">Your readiness checklist</div></div>
+        <div id="overall-ring"></div>
+      </div>
+      <div id="prep-content"></div>
+    </div>
+
+    <!-- ── JOB TOOLS ── -->
+    <div id="page-tools" class="page">
+      <div class="page-header"><div><div class="page-title">Job tools</div><div class="page-sub">Speed up your application workflow</div></div></div>
+
+      <!-- JD Analyzer -->
+      <div class="section-header"><div class="section-title">JD keyword analyzer</div></div>
+      <div class="jd-wrap">
+        <div class="jd-panel">
+          <div class="jd-panel-title">Paste job description</div>
+          <textarea class="form-textarea" id="jd-input" placeholder="Paste the full job description here..." style="min-height:200px;width:100%;margin-bottom:10px" oninput="analyzeJD()"></textarea>
+          <div style="font-size:11px;color:var(--text3)">Keywords update automatically as you type.</div>
+        </div>
+        <div class="jd-panel">
+          <div class="jd-panel-title">Match analysis</div>
+          <div id="jd-score" style="text-align:center;padding:8px 0;font-size:13px;color:var(--text3)">Paste a JD to see your match score.</div>
+          <div class="divider"></div>
+          <div class="jd-panel-title">Keywords found</div>
+          <div id="jd-keywords"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Email templates -->
+      <div class="section-header"><div class="section-title">Email templates</div></div>
+      <div id="email-templates"></div>
+
+      <!-- Email composer -->
+      <div id="email-composer" style="display:none;margin-top:12px">
+        <div class="jd-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="jd-panel-title" id="composer-title"></div>
+            <div style="display:flex;gap:6px">
+              <button class="copy-btn" onclick="copyEmail()"><i class="fa-regular fa-copy"></i> Copy</button>
+              <button class="copy-btn" onclick="document.getElementById('email-composer').style.display='none'">✕ Close</button>
+            </div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div class="form-label" style="margin-bottom:5px">Customize</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input class="form-input" id="tpl-company" placeholder="Company name" style="flex:1;min-width:120px" oninput="buildEmail()">
+              <input class="form-input" id="tpl-role" placeholder="Role / internship" style="flex:1;min-width:120px" oninput="buildEmail()">
+              <input class="form-input" id="tpl-contact" placeholder="Hiring manager name" style="flex:1;min-width:120px" oninput="buildEmail()">
+            </div>
+          </div>
+          <div class="form-label" style="margin-bottom:5px">Subject</div>
+          <input class="form-input" id="email-subject" style="margin-bottom:10px;width:100%">
+          <div class="form-label" style="margin-bottom:5px">Body</div>
+          <textarea class="form-textarea" id="email-body" style="min-height:200px;width:100%"></textarea>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-app">
+  <div class="modal">
+    <div class="modal-title">Log application</div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Company *</div><input class="form-input" id="a-company" placeholder="Deloitte"></div>
+      <div class="form-field"><div class="form-label">Role *</div><input class="form-input" id="a-role" placeholder="Data Analyst Intern"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Status</div>
+        <select class="form-select" id="a-status">
+          <option>Applied</option><option>OA</option><option>Interview</option><option>Offer</option><option>Rejected</option><option>Ghosted</option>
+        </select>
+      </div>
+      <div class="form-field"><div class="form-label">Date applied</div><input class="form-input" id="a-date" type="date"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Source</div><input class="form-input" id="a-source" placeholder="LinkedIn, referral, Naukri..."></div>
+      <div class="form-field"><div class="form-label">Deadline</div><input class="form-input" id="a-deadline" type="date"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Location</div><input class="form-input" id="a-location" placeholder="Delhi / Remote"></div>
+      <div class="form-field"><div class="form-label">Stipend (₹/month)</div><input class="form-input" id="a-stipend" placeholder="25000" type="number"></div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-field"><div class="form-label">Job URL</div><input class="form-input" id="a-url" placeholder="https://..."></div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-field"><div class="form-label">Notes</div><textarea class="form-textarea" id="a-notes" placeholder="Referral, recruiter name, any details..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('app')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveApp()">Save application</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-followup">
+  <div class="modal">
+    <div class="modal-title">Schedule follow-up</div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Company *</div><input class="form-input" id="f-company" placeholder="McKinsey"></div>
+      <div class="form-field"><div class="form-label">Contact</div><input class="form-input" id="f-contact" placeholder="Priya Sharma (HR)"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Follow-up date *</div><input class="form-input" id="f-date" type="date"></div>
+      <div class="form-field"><div class="form-label">Via</div>
+        <select class="form-select" id="f-method"><option>Email</option><option>LinkedIn</option><option>Phone</option><option>In person</option></select>
+      </div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-field"><div class="form-label">What to say</div><textarea class="form-textarea" id="f-note" placeholder="Key points to mention..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('followup')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFollowup()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-network">
+  <div class="modal">
+    <div class="modal-title">Add contact</div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Name *</div><input class="form-input" id="n-name" placeholder="Rahul Mehta"></div>
+      <div class="form-field"><div class="form-label">Company</div><input class="form-input" id="n-company" placeholder="Google"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">Role</div><input class="form-input" id="n-role" placeholder="Senior Data Analyst"></div>
+      <div class="form-field"><div class="form-label">Relationship</div>
+        <select class="form-select" id="n-rel"><option>Reached out</option><option>Connected</option><option>Talked</option><option>Warm</option><option>Referral potential</option></select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><div class="form-label">LinkedIn URL</div><input class="form-input" id="n-linkedin" placeholder="linkedin.com/in/..."></div>
+      <div class="form-field"><div class="form-label">Met via</div><input class="form-input" id="n-via" placeholder="DTU alumni, cold DM..."></div>
+    </div>
+    <div class="form-grid full">
+      <div class="form-field"><div class="form-label">Notes</div><textarea class="form-textarea" id="n-notes" placeholder="Discussed, next steps..."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('network')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNetwork()">Save contact</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const KEY = { apps:'ij2_apps', fu:'ij2_fu', net:'ij2_net', prep:'ij2_prep' };
+let apps=[], followups=[], contacts=[], prepItems=[];
+let appFilter='all', appView='list', currentTemplate=null;
+
+const PREP_DEFAULTS = [
+  {id:'p1',cat:'Resume & portfolio',icon:'fa-file-lines',text:'Tailor resume to each JD — match their exact keywords',done:false,sub:'Run JD analyzer in Job Tools tab'},
+  {id:'p2',cat:'Resume & portfolio',icon:'fa-file-lines',text:'Pin 3 best projects on GitHub (fraud detection, churn, retail)',done:false,sub:''},
+  {id:'p3',cat:'Resume & portfolio',icon:'fa-file-lines',text:'Portfolio website live and mobile-friendly',done:false,sub:''},
+  {id:'p4',cat:'Technical prep',icon:'fa-code',text:'SQL: window functions (RANK, LAG, LEAD, CTE, subqueries)',done:false,sub:'LeetCode SQL 50 — aim for 40+ completed'},
+  {id:'p5',cat:'Technical prep',icon:'fa-code',text:'Python: pandas groupby, merge, pivot — fluency drills',done:false,sub:''},
+  {id:'p6',cat:'Technical prep',icon:'fa-code',text:'Power BI / Tableau — one fresh dashboard on new dataset',done:false,sub:'Use a public Kaggle dataset, not same old ones'},
+  {id:'p7',cat:'Technical prep',icon:'fa-code',text:'A/B testing: hypothesis test, p-value, statistical significance',done:false,sub:'Critical gap for DS roles at Zomato, Uber, McKinsey'},
+  {id:'p8',cat:'Technical prep',icon:'fa-code',text:'Be able to explain SHAP + LightGBM to a non-technical person',done:false,sub:'Fraud detection project — key differentiator'},
+  {id:'p9',cat:'Behavioral prep',icon:'fa-comments',text:'Prepare 3 STAR stories — leadership, impact, conflict',done:false,sub:'Yuvaan DTU, XylofyAI internship, project challenge'},
+  {id:'p10',cat:'Behavioral prep',icon:'fa-comments',text:'90-second "tell me about yourself" — Engineering Physics → data → why this role',done:false,sub:'Record yourself, watch it back'},
+  {id:'p11',cat:'Behavioral prep',icon:'fa-comments',text:'Research each company — products, recent news, competitors',done:false,sub:'Prepare 2 smart questions to ask the interviewer'},
+  {id:'p12',cat:'Day-of checklist',icon:'fa-calendar-check',text:'Confirm time, platform, and interviewer name 24h before',done:false,sub:''},
+  {id:'p13',cat:'Day-of checklist',icon:'fa-calendar-check',text:'Test audio/video 30 minutes before virtual interview',done:false,sub:''},
+  {id:'p14',cat:'Day-of checklist',icon:'fa-calendar-check',text:'Keep resume, portfolio, and GitHub open in browser tabs',done:false,sub:''},
+];
+
+const MY_SKILLS = ['Python','SQL','Power BI','Tableau','LightGBM','XGBoost','SHAP','Pandas','NumPy','Airflow','Docker','Streamlit','Machine Learning','Data Analysis','Visualization','Excel','Git'];
+
+const EMAIL_TEMPLATES = [
+  {
+    type:'Cold outreach',
+    title:'Reach out to a recruiter or hiring manager',
+    subject:'Data Analyst Internship — Yash Rathi, DTU',
+    body:`Hi {contact},\n\nI'm Yash Rathi, a 3rd-year Engineering Physics student at Delhi Technological University. I came across {company} and was genuinely impressed by {specific_thing}.\n\nI've built end-to-end analytics projects — including a fraud detection model on 590K transactions (LightGBM + SHAP) and a retail analytics platform — and I'm actively looking for a Data Analyst or Business Analyst internship.\n\nI'd love to learn more about opportunities at {company}. Would you be open to a 15-minute call?\n\nMy portfolio: github.com/YashRathi0206\nLinkedIn: linkedin.com/in/yash-rathi0207\n\nThank you for your time,\nYash Rathi\n+91-XXXXXXXXXX`
+  },
+  {
+    type:'Follow-up',
+    title:'Follow up after applying (7–10 days)',
+    subject:'Following up — {role} application | Yash Rathi',
+    body:`Hi {contact},\n\nI wanted to follow up on my application for the {role} position at {company}, submitted about a week ago.\n\nI'm genuinely excited about this opportunity — especially {specific_reason}. I believe my background in Python, SQL, and ML (fraud detection on 590K records, customer churn prediction, retail analytics) aligns well with what you're looking for.\n\nPlease let me know if you need any additional information. I'd love the chance to contribute to {company}.\n\nBest,\nYash Rathi\nlinkedin.com/in/yash-rathi0207`
+  },
+  {
+    type:'Thank-you note',
+    title:'After an interview (within 24 hours)',
+    subject:'Thank you — {role} interview | Yash Rathi',
+    body:`Hi {contact},\n\nThank you for taking the time to speak with me today about the {role} position at {company}.\n\nI really enjoyed our conversation, particularly the discussion about {specific_topic}. It reinforced my excitement about the role and the work your team is doing.\n\nI'm confident that my experience with {relevant_skill} would let me contribute meaningfully from day one. Please don't hesitate to reach out if you have any additional questions.\n\nLooking forward to the next steps.\n\nWarm regards,\nYash Rathi`
+  },
+  {
+    type:'Networking',
+    title:'Reach out to a DTU alumni or industry contact',
+    subject:'DTU student — would love your perspective on {company}',
+    body:`Hi {contact},\n\nI'm Yash Rathi, a 3rd-year Engineering Physics student at DTU. I found your profile and was really impressed by your journey into data analytics.\n\nI'm actively building my skills in Python, SQL, and Power BI, and I'm targeting analyst internships at companies like {company}. I'd love to hear about your experience and any advice you might have for someone just starting out.\n\nWould you be open to a 15-minute virtual chat? Completely at your convenience.\n\nThank you,\nYash Rathi | linkedin.com/in/yash-rathi0207`
+  },
+];
+
+const JD_KEYWORDS_DB = {
+  'Python':true,'SQL':true,'Power BI':true,'Tableau':true,'Excel':true,'R':true,
+  'Machine Learning':true,'Data Analysis':true,'Statistics':true,'A/B Testing':true,
+  'Pandas':true,'NumPy':true,'Scikit-learn':true,'TensorFlow':true,'LightGBM':true,
+  'XGBoost':true,'SHAP':true,'Airflow':true,'Docker':true,'Streamlit':true,
+  'ETL':true,'Data Pipeline':true,'BI':true,'Dashboard':true,'KPI':true,
+  'Regression':true,'Classification':true,'Clustering':true,'NLP':true,
+  'Forecasting':true,'Visualization':true,'Git':true,'AWS':true,'GCP':true,
+  'Azure':true,'Spark':true,'Hadoop':true,'NoSQL':true,'MongoDB':true,
+  'Communication':true,'Teamwork':true,'Problem Solving':true,'Analytical':true,
+  'Business Intelligence':true,'Data Warehouse':true,'Star Schema':true,
+  'Prophet':true,'K-Means':true,'Random Forest':true,'Gradient Boosting':true,
+  'Hypothesis Testing':true,'P-value':true,'Confidence Interval':true,
+  'Causal Inference':true,'Experimentation':true,'Growth':true,'Product Analytics':true,
+};
+
+const AV_COLORS = ['#7c6fff','#00d4b4','#f0a040','#f06080','#40a0ff','#40d080'];
+
+// ─── Persistence ──────────────────────────────────────────────────────────────
+function load(){
+  try{ apps = JSON.parse(localStorage.getItem(KEY.apps)||'[]'); }catch(e){ apps=[]; }
+  try{ followups = JSON.parse(localStorage.getItem(KEY.fu)||'[]'); }catch(e){ followups=[]; }
+  try{ contacts = JSON.parse(localStorage.getItem(KEY.net)||'[]'); }catch(e){ contacts=[]; }
+  try{ prepItems = JSON.parse(localStorage.getItem(KEY.prep)||JSON.stringify(PREP_DEFAULTS)); }catch(e){ prepItems = PREP_DEFAULTS; }
+}
+function save(){
+  localStorage.setItem(KEY.apps, JSON.stringify(apps));
+  localStorage.setItem(KEY.fu, JSON.stringify(followups));
+  localStorage.setItem(KEY.net, JSON.stringify(contacts));
+  localStorage.setItem(KEY.prep, JSON.stringify(prepItems));
+  updateNavBadges();
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function goPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const renderers = {
+    dashboard: renderDashboard,
+    applications: ()=>{renderApps();},
+    pipeline: renderKanban,
+    followups: renderFollowups,
+    networking: renderNetwork,
+    prep: renderPrep,
+    tools: renderTools,
+  };
+  if(renderers[name]) renderers[name]();
+}
+
+function updateNavBadges(){
+  document.getElementById('nav-app-count').textContent = apps.length;
+  const overdue = followups.filter(f=>!f.done && daysDiff(f.date)<0).length;
+  const fuBadge = document.getElementById('nav-fu-count');
+  fuBadge.textContent = overdue;
+  fuBadge.style.display = overdue>0?'':'none';
+}
+
+// ─── Modal ────────────────────────────────────────────────────────────────────
+function openModal(type){ document.getElementById('modal-'+type).classList.add('open'); }
+function closeModal(type){ document.getElementById('modal-'+type).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg){
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<i class="fa-solid fa-circle-check"></i>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 2500);
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function daysDiff(dateStr){
+  if(!dateStr) return 999;
+  const d=new Date(dateStr), now=new Date();
+  now.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((d-now)/(1000*60*60*24));
+}
+function fmtDate(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}); }
+function initials(name){ return name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2); }
+function avColor(i){ return AV_COLORS[i%AV_COLORS.length]; }
+function statusClass(s){ const m={Applied:'s-applied',OA:'s-oa',Interview:'s-interview',Offer:'s-offer',Rejected:'s-rejected',Ghosted:'s-ghosted'}; return m[s]||'s-applied'; }
+function logoInitials(company){ return company.split(/[\s&]/)[0].slice(0,2).toUpperCase(); }
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+let chartTimeline=null, chartDonut=null;
+
+function renderDashboard(){
+  const now = new Date();
+  document.getElementById('dash-date').textContent = now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const cnt = s => apps.filter(a=>a.status===s).length;
+  const responseRate = apps.length ? Math.round((apps.filter(a=>!['Applied','Ghosted'].includes(a.status)).length/apps.length)*100) : 0;
+
+  document.getElementById('dash-metrics').innerHTML = `
+    <div class="metric-card" style="--card-accent:var(--accent);--card-accent-dim:var(--accent-glow)">
+      <div class="metric-icon"><i class="fa-solid fa-briefcase"></i></div>
+      <div class="metric-val">${apps.length}</div>
+      <div class="metric-label">Total applied</div>
+      <div class="metric-delta delta-neutral"><i class="fa-solid fa-circle-dot" style="font-size:8px"></i> All time</div>
+    </div>
+    <div class="metric-card" style="--card-accent:var(--teal);--card-accent-dim:var(--teal-dim)">
+      <div class="metric-icon"><i class="fa-solid fa-comments" style="color:var(--teal)"></i></div>
+      <div class="metric-val">${cnt('Interview')}</div>
+      <div class="metric-label">Interviews</div>
+      <div class="metric-delta delta-up"><i class="fa-solid fa-arrow-trend-up"></i> ${apps.length?Math.round(cnt('Interview')/apps.length*100):0}% rate</div>
+    </div>
+    <div class="metric-card" style="--card-accent:var(--green);--card-accent-dim:var(--green-dim)">
+      <div class="metric-icon"><i class="fa-solid fa-trophy" style="color:var(--green)"></i></div>
+      <div class="metric-val">${cnt('Offer')}</div>
+      <div class="metric-label">Offers</div>
+      <div class="metric-delta delta-neutral">${cnt('OA')} OAs pending</div>
+    </div>
+    <div class="metric-card" style="--card-accent:var(--amber);--card-accent-dim:var(--amber-dim)">
+      <div class="metric-icon"><i class="fa-solid fa-chart-pie" style="color:var(--amber)"></i></div>
+      <div class="metric-val">${responseRate}%</div>
+      <div class="metric-label">Response rate</div>
+      <div class="metric-delta delta-neutral">${cnt('Rejected')} rejected</div>
+    </div>
+    <div class="metric-card" style="--card-accent:var(--blue);--card-accent-dim:var(--blue-dim)">
+      <div class="metric-icon"><i class="fa-solid fa-users" style="color:var(--blue)"></i></div>
+      <div class="metric-val">${contacts.length}</div>
+      <div class="metric-label">Network contacts</div>
+      <div class="metric-delta delta-neutral">${contacts.filter(c=>c.rel==='Referral potential').length} referral potential</div>
+    </div>
+    <div class="metric-card" style="--card-accent:var(--rose);--card-accent-dim:var(--rose-dim)">
+      <div class="metric-icon"><i class="fa-solid fa-bell" style="color:var(--rose)"></i></div>
+      <div class="metric-val">${followups.filter(f=>!f.done&&daysDiff(f.date)<=0).length}</div>
+      <div class="metric-label">Overdue follow-ups</div>
+      <div class="metric-delta delta-neutral">${followups.filter(f=>!f.done&&daysDiff(f.date)<=3&&daysDiff(f.date)>0).length} due soon</div>
+    </div>
+  `;
+
+  // Timeline chart
+  const months = [];
+  const counts = [];
+  for(let i=5;i>=0;i--){
+    const d=new Date(); d.setMonth(d.getMonth()-i);
+    months.push(d.toLocaleDateString('en-IN',{month:'short'}));
+    counts.push(apps.filter(a=>{ const ad=new Date(a.date); return ad.getMonth()===d.getMonth()&&ad.getFullYear()===d.getFullYear(); }).length);
+  }
+  if(chartTimeline){ chartTimeline.destroy(); }
+  chartTimeline = new Chart(document.getElementById('chart-timeline'),{
+    type:'bar',
+    data:{ labels:months, datasets:[{
+      label:'Applications', data:counts,
+      backgroundColor:'rgba(124,111,255,0.25)', borderColor:'#7c6fff',
+      borderWidth:2, borderRadius:6, borderSkipped:false,
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#8888a0',font:{family:'Inter',size:11}} },
+        y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#8888a0',font:{family:'Inter',size:11},stepSize:1} }
+      }
+    }
+  });
+
+  // Donut chart
+  const statuses = ['Applied','OA','Interview','Offer','Rejected','Ghosted'];
+  const colors = ['#40a0ff','#f0a040','#00d4b4','#40d080','#f06080','#55556a'];
+  const donutData = statuses.map(s=>cnt(s));
+  if(chartDonut){ chartDonut.destroy(); }
+  chartDonut = new Chart(document.getElementById('chart-donut'),{
+    type:'doughnut',
+    data:{ labels:statuses, datasets:[{ data:donutData, backgroundColor:colors, borderWidth:0, hoverOffset:4 }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'72%',
+      plugins:{ legend:{display:false} }
+    }
+  });
+  document.getElementById('donut-legend').innerHTML = statuses.map((s,i)=>
+    donutData[i]>0 ? `<div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:2px;background:${colors[i]};flex-shrink:0"></div><span style="font-size:12px;color:#8888a0">${s}</span><span style="font-size:12px;color:#f0f0f5;margin-left:auto;font-weight:600">${donutData[i]}</span></div>` : ''
+  ).join('');
+
+  // Recent apps
+  const recent = [...apps].slice(0,4);
+  document.getElementById('dash-recent').innerHTML = recent.length ? recent.map(a=>miniAppCard(a)).join('') :
+    `<div class="empty-state"><i class="fa-solid fa-briefcase"></i><div class="empty-state-title">No applications yet</div><div class="empty-state-sub">Add your first one above.</div></div>`;
+
+  // Upcoming follow-ups
+  const upFu = followups.filter(f=>!f.done).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,3);
+  document.getElementById('dash-fu').innerHTML = upFu.length ? upFu.map(f=>{
+    const d=daysDiff(f.date);
+    const cls=d<0?'fu-overdue':d===0?'fu-today':d<=3?'fu-soon':'fu-later';
+    const label=d<0?`${Math.abs(d)}d overdue`:d===0?'Today':d===1?'Tomorrow':`In ${d}d`;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:13px;font-weight:500;color:var(--text)">${f.company}</div><div style="font-size:11px;color:var(--text3)">${f.method} · ${fmtDate(f.date)}</div></div>
+      <span class="fu-badge ${cls}">${label}</span>
+    </div>`;
+  }).join('') : `<div style="font-size:12px;color:var(--text3);padding:8px 0">No follow-ups scheduled.</div>`;
+
+  // Timeline
+  const events = [...apps].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+  document.getElementById('dash-timeline').innerHTML = events.map(a=>`
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-company">${a.company}</div>
+      <div class="tl-event"><span class="status-select ${statusClass(a.status)}">${a.status}</span></div>
+      <div class="tl-date">${fmtDate(a.date)}</div>
+    </div>
+  `).join('') || `<div style="font-size:12px;color:var(--text3)">No activity yet.</div>`;
+}
+
+function miniAppCard(a){
+  return `<div class="app-card" style="padding:10px 14px;margin-bottom:6px">
+    <div class="company-logo">${logoInitials(a.company)}</div>
+    <div class="app-info">
+      <div class="app-company">${a.company}</div>
+      <div class="app-role">${a.role||'—'}</div>
+    </div>
+    <span class="status-select ${statusClass(a.status)}" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px">${a.status}</span>
+  </div>`;
+}
+
+// ─── Applications ─────────────────────────────────────────────────────────────
+function saveApp(){
+  const a = {
+    id: Date.now(),
+    company: document.getElementById('a-company').value.trim(),
+    role: document.getElementById('a-role').value.trim(),
+    status: document.getElementById('a-status').value,
+    date: document.getElementById('a-date').value,
+    source: document.getElementById('a-source').value.trim(),
+    deadline: document.getElementById('a-deadline').value,
+    location: document.getElementById('a-location').value.trim(),
+    stipend: document.getElementById('a-stipend').value,
+    url: document.getElementById('a-url').value.trim(),
+    notes: document.getElementById('a-notes').value.trim(),
+  };
+  if(!a.company){ alert('Company name required'); return; }
+  apps.unshift(a); save(); closeModal('app');
+  ['a-company','a-role','a-notes','a-source','a-date','a-deadline','a-location','a-stipend','a-url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-status').value='Applied';
+  renderApps(); toast(`${a.company} added`);
+}
+function deleteApp(id){ apps=apps.filter(a=>a.id!==id); save(); renderApps(); }
+function updateStatus(id,val){ const a=apps.find(x=>x.id===id); if(a){ a.status=val; save(); renderApps(); } }
+function setView(v){ appView=v; document.getElementById('vlist').classList.toggle('active',v==='list'); document.getElementById('vkanban').classList.toggle('active',v==='kanban'); renderApps(); }
+
+function filterApps(val,btn){
+  appFilter=val;
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderApps();
+}
+
+function renderApps(){
+  const q = (document.getElementById('app-search')||{}).value?.toLowerCase()||'';
+  const sort = (document.getElementById('app-sort')||{}).value||'newest';
+  let filtered = appFilter==='all' ? apps : apps.filter(a=>a.status===appFilter);
+  if(q) filtered = filtered.filter(a=>(a.company+a.role+a.source).toLowerCase().includes(q));
+  if(sort==='oldest') filtered=[...filtered].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  else if(sort==='company') filtered=[...filtered].sort((a,b)=>a.company.localeCompare(b.company));
+  else if(sort==='deadline') filtered=[...filtered].sort((a,b)=>new Date(a.deadline||'9999')-new Date(b.deadline||'9999'));
+  const sub = document.getElementById('app-count-sub');
+  if(sub) sub.textContent = `${filtered.length} application${filtered.length!==1?'s':''}`;
+  const el = document.getElementById('app-list');
+  if(!el) return;
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty-state"><i class="fa-solid fa-briefcase"></i><div class="empty-state-title">No applications found</div><div class="empty-state-sub">Try a different filter or add a new one.</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(a=>`
+    <div class="app-card">
+      <div class="company-logo">${logoInitials(a.company)}</div>
+      <div class="app-info">
+        <div class="app-company">${a.company}</div>
+        <div class="app-role">${a.role||'Role not specified'}</div>
+        <div class="app-meta">
+          ${a.date?`<span class="app-meta-item"><i class="fa-regular fa-calendar"></i>${fmtDate(a.date)}</span>`:''}
+          ${a.source?`<span class="app-meta-item"><i class="fa-solid fa-link"></i>${a.source}</span>`:''}
+          ${a.location?`<span class="app-meta-item"><i class="fa-solid fa-location-dot"></i>${a.location}</span>`:''}
+          ${a.stipend?`<span class="app-meta-item"><i class="fa-solid fa-indian-rupee-sign"></i>${parseInt(a.stipend).toLocaleString('en-IN')}/mo</span>`:''}
+          ${a.deadline?`<span class="app-meta-item" style="color:${daysDiff(a.deadline)<=3?'var(--rose)':'var(--text3)'}"><i class="fa-solid fa-hourglass-half"></i>Due ${fmtDate(a.deadline)}</span>`:''}
+          ${a.url?`<a href="${a.url}" target="_blank" style="text-decoration:none"><span class="app-meta-item" style="color:var(--accent)"><i class="fa-solid fa-arrow-up-right-from-square"></i>Job link</span></a>`:''}
+        </div>
+        ${a.notes?`<div style="font-size:11px;color:var(--text3);margin-top:4px">${a.notes}</div>`:''}
+      </div>
+      <div class="app-actions">
+        <select class="status-select ${statusClass(a.status)}" onchange="updateStatus(${a.id},this.value)">
+          ${['Applied','OA','Interview','Offer','Rejected','Ghosted'].map(s=>`<option${s===a.status?' selected':''}>${s}</option>`).join('')}
+        </select>
+        <button class="delete-icon-btn" onclick="deleteApp(${a.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── Kanban ───────────────────────────────────────────────────────────────────
+function renderKanban(){
+  const stages = ['Applied','OA','Interview','Offer','Rejected'];
+  const colors = {Applied:'var(--blue)',OA:'var(--amber)',Interview:'var(--teal)',Offer:'var(--green)',Rejected:'var(--rose)'};
+  document.getElementById('kanban-board').innerHTML = stages.map(s=>{
+    const cards = apps.filter(a=>a.status===s);
+    return `<div class="kanban-col">
+      <div class="kanban-col-header">
+        <span class="kanban-col-title" style="color:${colors[s]}">${s}</span>
+        <span class="kanban-count">${cards.length}</span>
+      </div>
+      ${cards.length ? cards.map(a=>`
+        <div class="kanban-card">
+          <div class="kanban-company">${a.company}</div>
+          <div class="kanban-role">${a.role||'—'}</div>
+          <div class="kanban-date">${fmtDate(a.date)}</div>
+        </div>
+      `).join('') : `<div style="font-size:12px;color:var(--text3);padding:8px 0">None</div>`}
+    </div>`;
+  }).join('');
+}
+
+// ─── Follow-ups ───────────────────────────────────────────────────────────────
+function saveFollowup(){
+  const f={ id:Date.now(), company:document.getElementById('f-company').value.trim(), contact:document.getElementById('f-contact').value.trim(), date:document.getElementById('f-date').value, method:document.getElementById('f-method').value, note:document.getElementById('f-note').value.trim(), done:false };
+  if(!f.company||!f.date){ alert('Company and date are required'); return; }
+  followups.push(f); save(); closeModal('followup');
+  ['f-company','f-contact','f-date','f-note'].forEach(id=>document.getElementById(id).value='');
+  renderFollowups(); toast('Follow-up scheduled');
+}
+function toggleFU(id){ const f=followups.find(x=>x.id===id); if(f){ f.done=!f.done; save(); renderFollowups(); } }
+function deleteFU(id){ followups=followups.filter(f=>f.id!==id); save(); renderFollowups(); }
+
+function renderFollowups(){
+  const sorted = [...followups].sort((a,b)=>a.done-b.done||new Date(a.date)-new Date(b.date));
+  const el=document.getElementById('fu-list');
+  if(!el) return;
+  el.innerHTML = sorted.length ? sorted.map(f=>{
+    const d=daysDiff(f.date);
+    const cls=f.done?'fu-later':d<0?'fu-overdue':d===0?'fu-today':d<=3?'fu-soon':'fu-later';
+    const label=f.done?'Done':d<0?`${Math.abs(d)}d overdue`:d===0?'Today':d===1?'Tomorrow':`In ${d}d`;
+    const barColor=f.done?'var(--text3)':d<0?'var(--rose)':d===0?'var(--amber)':d<=3?'var(--blue)':'var(--green)';
+    return `<div class="fu-row ${f.done?'fu-done-row':''}">
+      <div class="fu-urgency-bar" style="background:${barColor}"></div>
+      <div class="fu-info">
+        <div class="fu-company">${f.company}${f.contact?` · <span style="font-weight:400;color:var(--text2)">${f.contact}</span>`:''}</div>
+        <div class="fu-detail">${fmtDate(f.date)} via ${f.method}${f.note?` · ${f.note}`:''}</div>
+      </div>
+      <span class="fu-badge ${cls}">${label}</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-icon" onclick="toggleFU(${f.id})" title="${f.done?'Undo':'Done'}"><i class="fa-solid ${f.done?'fa-rotate-left':'fa-check'}"></i></button>
+        <button class="delete-icon-btn" onclick="deleteFU(${f.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty-state"><i class="fa-solid fa-bell"></i><div class="empty-state-title">No follow-ups yet</div><div class="empty-state-sub">Schedule one — following up 7–10 days after applying doubles your response rate.</div></div>`;
+}
+
+// ─── Networking ───────────────────────────────────────────────────────────────
+function saveNetwork(){
+  const c={ id:Date.now(), name:document.getElementById('n-name').value.trim(), company:document.getElementById('n-company').value.trim(), role:document.getElementById('n-role').value.trim(), rel:document.getElementById('n-rel').value, linkedin:document.getElementById('n-linkedin').value.trim(), via:document.getElementById('n-via').value.trim(), notes:document.getElementById('n-notes').value.trim() };
+  if(!c.name){ alert('Name required'); return; }
+  contacts.push(c); save(); closeModal('network');
+  ['n-name','n-company','n-role','n-linkedin','n-via','n-notes'].forEach(id=>document.getElementById(id).value='');
+  renderNetwork(); toast(`${c.name} added`);
+}
+function deleteContact(id){ contacts=contacts.filter(c=>c.id!==id); save(); renderNetwork(); }
+const relColors={
+  'Reached out':'var(--blue)','Connected':'var(--accent)',
+  'Talked':'var(--amber)','Warm':'var(--teal)','Referral potential':'var(--green)'
+};
+
+function renderNetwork(){
+  const el=document.getElementById('net-list');
+  if(!el) return;
+  el.innerHTML = contacts.length ? contacts.map((c,i)=>`
+    <div class="net-card">
+      <div class="net-header">
+        <div class="net-av" style="background:${avColor(i)}">${initials(c.name)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="net-name">${c.name}</div>
+          <div class="net-role">${c.role?c.role+' · ':''}${c.company}</div>
+        </div>
+        <button class="delete-icon-btn" onclick="deleteContact(${c.id})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      <div class="net-tags">
+        <span class="net-tag" style="color:${relColors[c.rel]||'var(--accent)'}">● ${c.rel}</span>
+        ${c.via?`<span class="net-tag">via ${c.via}</span>`:''}
+        ${c.linkedin?`<a href="https://${c.linkedin.replace('https://','')}" target="_blank" style="text-decoration:none"><span class="net-tag" style="color:var(--blue)"><i class="fa-brands fa-linkedin"></i> LinkedIn</span></a>`:''}
+      </div>
+      ${c.notes?`<div class="net-note">${c.notes}</div>`:''}
+    </div>
+  `).join('') : `<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-users"></i><div class="empty-state-title">No contacts yet</div><div class="empty-state-sub">Build your network — referrals close 4× more internships than cold applications.</div></div>`;
+}
+
+// ─── Prep ─────────────────────────────────────────────────────────────────────
+function togglePrep(id){ const p=prepItems.find(x=>x.id===id); if(p){ p.done=!p.done; save(); renderPrep(); } }
+
+function renderPrep(){
+  const total=prepItems.length, done=prepItems.filter(p=>p.done).length;
+  const pct=total?Math.round(done/total*100):0;
+  const r=54, circ=2*Math.PI*r;
+  document.getElementById('overall-ring').innerHTML=`
+    <div class="progress-ring">
+      <svg class="ring-svg" width="130" height="130" viewBox="0 0 130 130">
+        <circle class="ring-bg" cx="65" cy="65" r="${r}" stroke-width="8"/>
+        <circle class="ring-fill" cx="65" cy="65" r="${r}" stroke-width="8"
+          stroke-dasharray="${circ}" stroke-dashoffset="${circ-(circ*pct/100)}"/>
+        <text class="ring-text" x="65" y="65" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;fill:#f0f0f5">${pct}%</text>
+      </svg>
+      <div class="ring-label">${done}/${total} ready</div>
+    </div>`;
+
+  const cats=[...new Set(prepItems.map(p=>p.cat))];
+  const icons={'Resume & portfolio':'fa-file-lines','Technical prep':'fa-code','Behavioral prep':'fa-comments','Day-of checklist':'fa-calendar-check'};
+  document.getElementById('prep-content').innerHTML=cats.map(cat=>{
+    const items=prepItems.filter(p=>p.cat===cat);
+    const catDone=items.filter(p=>p.done).length;
+    const catPct=Math.round(catDone/items.length*100);
+    return `<div class="prep-section">
+      <div class="prep-section-header">
+        <div class="prep-section-title"><i class="fa-solid ${icons[cat]||'fa-list'}"></i>${cat}</div>
+        <div class="prep-progress-mini">
+          <span style="font-size:11px;color:var(--text3)">${catDone}/${items.length}</span>
+          <div class="prep-bar-wrap"><div class="prep-bar-fill" style="width:${catPct}%"></div></div>
+        </div>
+      </div>
+      ${items.map(p=>`
+        <div class="prep-item">
+          <input class="prep-cb" type="checkbox" id="${p.id}" ${p.done?'checked':''} onchange="togglePrep('${p.id}')">
+          <label for="${p.id}">
+            <div class="prep-text ${p.done?'done':''}">${p.text}</div>
+            ${p.sub?`<div class="prep-sub">${p.sub}</div>`:''}
+          </label>
+        </div>
+      `).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ─── Tools ────────────────────────────────────────────────────────────────────
+function renderTools(){
+  // Email templates
+  document.getElementById('email-templates').innerHTML = EMAIL_TEMPLATES.map((t,i)=>`
+    <div class="template-card" onclick="openTemplate(${i})">
+      <div class="template-type">${t.type}</div>
+      <div class="template-title">${t.title}</div>
+      <div class="template-preview">${t.body.slice(0,80)}...</div>
+    </div>
+  `).join('');
+}
+
+function openTemplate(idx){
+  currentTemplate=idx;
+  const t=EMAIL_TEMPLATES[idx];
+  document.getElementById('composer-title').textContent=t.type+' template';
+  document.getElementById('email-composer').style.display='block';
+  buildEmail();
+  document.getElementById('email-composer').scrollIntoView({behavior:'smooth'});
+}
+
+function buildEmail(){
+  if(currentTemplate===null) return;
+  const t=EMAIL_TEMPLATES[currentTemplate];
+  const company=document.getElementById('tpl-company').value||'{company}';
+  const role=document.getElementById('tpl-role').value||'{role}';
+  const contact=document.getElementById('tpl-contact').value||'{contact}';
+  document.getElementById('email-subject').value=t.subject.replace(/{company}/g,company).replace(/{role}/g,role).replace(/{contact}/g,contact);
+  document.getElementById('email-body').value=t.body.replace(/{company}/g,company).replace(/{role}/g,role).replace(/{contact}/g,contact);
+}
+
+function copyEmail(){
+  const subj=document.getElementById('email-subject').value;
+  const body=document.getElementById('email-body').value;
+  navigator.clipboard.writeText(`Subject: ${subj}\n\n${body}`).then(()=>toast('Email copied to clipboard'));
+}
+
+function analyzeJD(){
+  const jd = document.getElementById('jd-input').value.toLowerCase();
+  if(!jd.trim()){ document.getElementById('jd-score').innerHTML='Paste a JD to see your match score.'; document.getElementById('jd-keywords').innerHTML=''; return; }
+
+  const found=[], missing=[], skills=MY_SKILLS.map(s=>s.toLowerCase());
+  const jdWords=Object.keys(JD_KEYWORDS_DB);
+  jdWords.forEach(kw=>{
+    if(jd.includes(kw.toLowerCase())){
+      if(skills.includes(kw.toLowerCase())) found.push({kw,match:true});
+      else found.push({kw,match:false});
+    }
+  });
+  // find gaps — skills in JD that I don't have
+  const myGaps=found.filter(k=>!k.match);
+  const myMatches=found.filter(k=>k.match);
+  const score=found.length?Math.round(myMatches.length/found.length*100):0;
+  const cls=score>=70?'score-high':score>=45?'score-mid':'score-low';
+  document.getElementById('jd-score').innerHTML=`
+    <div class="match-score ${cls}">${score}%</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${myMatches.length} skills matched · ${myGaps.length} gaps found</div>
+    ${score>=70?`<div style="font-size:12px;color:var(--green)">Strong match — tailor your resume and apply.</div>`:
+      score>=45?`<div style="font-size:12px;color:var(--amber)">Decent match — highlight your strongest relevant skills.</div>`:
+      `<div style="font-size:12px;color:var(--rose)">Low match — consider bridging the gaps or targeting other roles.</div>`}
+  `;
+  document.getElementById('jd-keywords').innerHTML=
+    `<div style="margin-bottom:6px">
+      ${myMatches.map(k=>`<span class="keyword-chip kw-match"><i class="fa-solid fa-check" style="font-size:10px"></i>${k.kw}</span>`).join('')}
+      ${myGaps.map(k=>`<span class="keyword-chip kw-gap"><i class="fa-solid fa-xmark" style="font-size:10px"></i>${k.kw}</span>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px">Green = you have it · Red = gap to address</div>`;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+load();
+renderDashboard();
+updateNavBadges();
+document.getElementById('a-date').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
